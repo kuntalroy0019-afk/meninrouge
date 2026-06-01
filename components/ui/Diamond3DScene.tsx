@@ -79,28 +79,43 @@ function Gem({ lite }: { lite: boolean }) {
   return (
     <Float speed={2} rotationIntensity={0.3} floatIntensity={0.7}>
       <mesh ref={ref} geometry={geometry} scale={1.35}>
-        <MeshTransmissionMaterial
-          // Lighter on mobile: half the FBO resolution, fewer samples, no
-          // backside pass — keeps the refraction smooth on phone GPUs.
-          samples={lite ? 2 : 4}
-          resolution={lite ? 128 : 256}
-          transmission={1}
-          thickness={0.9}
-          ior={2.42}
-          chromaticAberration={lite ? 0.4 : 0.6}
-          anisotropicBlur={0.1}
-          distortion={0.1}
-          distortionScale={0.2}
-          temporalDistortion={0}
-          roughness={0}
-          clearcoat={1}
-          clearcoatRoughness={0}
-          attenuationColor="#ffe3ea"
-          attenuationDistance={2}
-          color="#ffffff"
-          backside={!lite}
-          backsideThickness={0.4}
-        />
+        {lite ? (
+          // Mobile: a crisp reflective + iridescent crystal. No transmission
+          // FBO (the muddy/expensive part on phones) — sharp facets + rainbow
+          // fire from the environment instead. Looks sharper at high DPR.
+          <meshPhysicalMaterial
+            color="#ffffff"
+            metalness={0}
+            roughness={0.04}
+            reflectivity={1}
+            clearcoat={1}
+            clearcoatRoughness={0}
+            iridescence={1}
+            iridescenceIOR={1.6}
+            envMapIntensity={2.6}
+          />
+        ) : (
+          <MeshTransmissionMaterial
+            samples={4}
+            resolution={256}
+            transmission={1}
+            thickness={0.9}
+            ior={2.42}
+            chromaticAberration={0.6}
+            anisotropicBlur={0.1}
+            distortion={0.1}
+            distortionScale={0.2}
+            temporalDistortion={0}
+            roughness={0}
+            clearcoat={1}
+            clearcoatRoughness={0}
+            attenuationColor="#ffe3ea"
+            attenuationDistance={2}
+            color="#ffffff"
+            backside
+            backsideThickness={0.4}
+          />
+        )}
       </mesh>
     </Float>
   );
@@ -116,8 +131,10 @@ export default function Diamond3DScene({
   return (
     <Canvas
       frameloop={paused ? "never" : "always"}
-      dpr={lite ? [1, 1] : [1, 1.5]}
-      gl={{ alpha: true, antialias: !lite, powerPreference: "high-performance" }}
+      // Render at the screen's real density (capped at 2) so it's sharp on
+      // high-DPR phones; the reflective mobile material keeps it affordable.
+      dpr={lite ? [1, 2] : [1, 1.5]}
+      gl={{ alpha: true, antialias: true, powerPreference: "high-performance" }}
       camera={{ position: [0, 0, 5], fov: 32 }}
       style={{ background: "transparent" }}
     >
