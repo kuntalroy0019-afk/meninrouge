@@ -63,7 +63,7 @@ function makeBrilliantGeometry() {
   return g;
 }
 
-function Gem() {
+function Gem({ lite }: { lite: boolean }) {
   const ref = useRef<THREE.Mesh>(null);
   const geometry = useMemo(makeBrilliantGeometry, []);
 
@@ -71,7 +71,7 @@ function Gem() {
     const m = ref.current;
     if (!m) return;
     m.rotation.y += delta * 0.35; // steady spin
-    // gentle tilt toward the pointer
+    // gentle tilt toward the pointer (negligible on touch — gem just spins)
     m.rotation.x = THREE.MathUtils.lerp(m.rotation.x, state.pointer.y * 0.35, 0.06);
     m.rotation.z = THREE.MathUtils.lerp(m.rotation.z, -state.pointer.x * 0.25, 0.06);
   });
@@ -80,12 +80,14 @@ function Gem() {
     <Float speed={2} rotationIntensity={0.3} floatIntensity={0.7}>
       <mesh ref={ref} geometry={geometry} scale={1.35}>
         <MeshTransmissionMaterial
-          samples={4}
-          resolution={256}
+          // Lighter on mobile: half the FBO resolution, fewer samples, no
+          // backside pass — keeps the refraction smooth on phone GPUs.
+          samples={lite ? 2 : 4}
+          resolution={lite ? 128 : 256}
           transmission={1}
           thickness={0.9}
           ior={2.42}
-          chromaticAberration={0.6}
+          chromaticAberration={lite ? 0.4 : 0.6}
           anisotropicBlur={0.1}
           distortion={0.1}
           distortionScale={0.2}
@@ -96,7 +98,7 @@ function Gem() {
           attenuationColor="#ffe3ea"
           attenuationDistance={2}
           color="#ffffff"
-          backside
+          backside={!lite}
           backsideThickness={0.4}
         />
       </mesh>
@@ -104,12 +106,18 @@ function Gem() {
   );
 }
 
-export default function Diamond3DScene({ paused = false }: { paused?: boolean }) {
+export default function Diamond3DScene({
+  paused = false,
+  lite = false,
+}: {
+  paused?: boolean;
+  lite?: boolean;
+}) {
   return (
     <Canvas
       frameloop={paused ? "never" : "always"}
-      dpr={[1, 1.5]}
-      gl={{ alpha: true, antialias: true, powerPreference: "high-performance" }}
+      dpr={lite ? [1, 1] : [1, 1.5]}
+      gl={{ alpha: true, antialias: !lite, powerPreference: "high-performance" }}
       camera={{ position: [0, 0, 5], fov: 32 }}
       style={{ background: "transparent" }}
     >
@@ -117,10 +125,10 @@ export default function Diamond3DScene({ paused = false }: { paused?: boolean })
       <pointLight position={[4, 4, 4]} intensity={20} color="#ffffff" />
       <pointLight position={[-4, -2, 2]} intensity={12} color="#f6c7d1" />
 
-      <Gem />
+      <Gem lite={lite} />
 
       {/* Static, baked-once lighting environment (no external HDR) */}
-      <Environment frames={1} resolution={256}>
+      <Environment frames={1} resolution={lite ? 128 : 256}>
         <Lightformer
           intensity={3}
           position={[0, 2, 3]}
