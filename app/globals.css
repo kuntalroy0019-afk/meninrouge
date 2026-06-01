@@ -1,0 +1,153 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Baby pink luxury tokens */
+  --blush-50: #fff8fa;
+  --blush-100: #fdeef1;
+  --blush-200: #fadce2;
+  --blush-300: #f6c7d1;
+  --rose-gold: #b76e79;
+  --champagne: #c9a86a;
+  --ink: #2b2024;
+
+  /* Motion tokens (from motion-design skill) */
+  --ease-out-quart: cubic-bezier(0.165, 0.84, 0.44, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-quint: cubic-bezier(0.83, 0, 0.17, 1);
+  --dur-1: 120ms;
+  --dur-2: 180ms;
+  --dur-3: 240ms;
+  --dur-4: 420ms;
+  --dur-5: 700ms;
+
+  /* Spacing scale */
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-2xl: 64px;
+  --space-3xl: 96px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: auto; /* Lenis handles smooth scroll */
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  margin: 0;
+  background-color: var(--blush-50);
+  color: var(--ink);
+  font-family: var(--font-jost), system-ui, sans-serif;
+  font-weight: 300;
+  overflow-x: hidden;
+}
+
+/* Typographic refinement: balanced headlines, tighter display tracking,
+   prettier paragraph wrapping (no orphans). Progressive — ignored where
+   unsupported. */
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+  letter-spacing: -0.012em;
+}
+p {
+  text-wrap: pretty;
+}
+
+/* Lenis smooth scroll baseline */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+::selection {
+  background: var(--rose-gold);
+  color: #fff;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 9px;
+}
+::-webkit-scrollbar-track {
+  background: var(--blush-100);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--rose-gold);
+  border-radius: 99px;
+}
+
+/* Utility: shimmering gold text */
+.text-gold-shimmer {
+  background: linear-gradient(
+    100deg,
+    var(--champagne) 20%,
+    #f4e4bf 40%,
+    var(--champagne) 60%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 6s linear infinite;
+}
+
+/* Thin elegant hairline divider */
+.hairline {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(183, 110, 121, 0.4),
+    transparent
+  );
+}
+
+/* Hide native cursor when custom cursor active (desktop only) */
+@media (hover: hover) and (pointer: fine) {
+  .cursor-none-desktop,
+  .cursor-none-desktop * {
+    cursor: none;
+  }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.mask-line {
+  overflow: hidden;
+  display: block;
+}
+
+/* Grain overlay for premium film texture */
+.grain::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 60;
+  opacity: 0.02;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}

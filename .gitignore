@@ -1,0 +1,17 @@
+# dependencies & build
+/node_modules
+/.next
+/out
+/build
+*.tsbuildinfo
+
+# next
+next-env.d.ts
+
+# os / env
+.DS_Store
+.env*.local
+
+# excluded from this repo
+/awesome-design-md-main
+*.pdf
